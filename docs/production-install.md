@@ -59,7 +59,7 @@ basicAuth:
     "user1": "password1"
 ```
 
-For all configuration options you can specify in your values file, see [server Helm docs](https://armadaproject.io/helm#server-helm-chat).
+For all configuration options you can specify in your values file, see [server Helm docs](./helm.md#server-helm-chart).
 
 Fill in the appropriate values in the above template and save it as `server-values.yaml`
 
@@ -120,7 +120,7 @@ tolerations: []
 <br/>
 
 
-For other node configurations and all other executor options you can specify in your values file, see [executor Helm docs](https://armadaproject.io/helm#Executor-helm-chart).
+For other node configurations and all other executor options you can specify in your values file, see [executor Helm docs](./helm.md#executor-helm-chart).
 
 Fill in the appropriate values in the above template and save it as `executor-values.yaml`.
 
