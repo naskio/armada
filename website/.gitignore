@@ -47,3 +47,8 @@ packages
 
 # macOS
 .DS_Store
+
+# ignore copied files
+_docs/
+_includes/CODE_OF_CONDUCT.md
+_includes/CONTRIBUTING.md
