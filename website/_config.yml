@@ -6,26 +6,16 @@ baseurl: ""
 collections:
   pages:
     output: true
-    permalink: /:name
+    permalink: /:title
+  docs:
+    output: true
+    permalink: /:path
 
 defaults:
-  -
-    scope:
+  - scope:
       path: ""
     values:
       layout: "default"
-  -
-    scope:
-      path: ""
-      type: "pages"
-    values:
-      layout: "default"
-  -
-    scope:
-      path: ""
-      type: "posts"
-    values:
-      layout: "post" 
 
 sass:
   sass_dir: assets/styles
@@ -33,10 +23,18 @@ sass:
   sourcemap: never
 
 plugins:
-  - jekyll-paginate
   - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-relative-links
 
-paginate: 6
-paginate_path: "/blog/page:num/"
-exclude: ["internal"]
+relative_links:
+  enabled: true
+  collections: true
 
+exclude:
+  - README.md
+  - copy.sh
+  - Gemfile
+  - Gemfile.lock
+  - _docs/README.md
+  - _docs/logo/
