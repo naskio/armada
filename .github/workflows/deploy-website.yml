@@ -40,7 +40,7 @@ jobs:
       - name: Prepare website/ for build
         run: |
           # Update _config.yml for forked repositories
-          if [ "${{ github.event.repository.fork }}" == "true" ]; then
+          if [ "${{ github.event.repository.fork }}" == "X" ]; then
             echo "Updating _config.yml to work on forked repositories..."
             sed -i "s/^url: .*/url: \"https:\/\/${{ github.repository_owner }}.github.io\/$(basename ${{ github.repository }})\"/" _config.yml
             sed -i "s/^baseurl: .*/baseurl: \"\/$(basename ${{ github.repository }})\"/" _config.yml
