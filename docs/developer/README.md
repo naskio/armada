@@ -172,7 +172,7 @@ It supports the following commands:
 ### VSCode Debugging
 
 After running `mage debug vscode`, you can attach to the running processes using VSCode.
-The launch.json file can be found [Here](https://github.com/armadaproject/armada/tree/master/developer/debug/launch.json)
+The launch.json file can be found [Here](https://github.com/armadaproject/armada/blob/master/developer/debug/launch.json)
 
 For using VSCode debugging, see the [VSCode Debugging Guide](https://code.visualstudio.com/docs/editor/debugging).
 
@@ -251,7 +251,7 @@ GoLand does not allow us to specify an ordering for services within docker compo
 
 Run `mage debug local` to only spin up the dependencies of Armada, and then run the individual components yourself.
 
-For required enviromental variables, please see [The Enviromental Variables Guide](https://github.com/armadaproject/armada/tree/master/developer/env/README.md).
+For required enviromental variables, please see [The Enviromental Variables Guide](https://github.com/armadaproject/armada/blob/master/developer/env/README.md).
 
 ## Finer-Grain Control
 
