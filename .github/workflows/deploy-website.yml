@@ -5,6 +5,7 @@ on:
   push: # Runs on pushes targeting the default branch
     branches:
       - master
+      - move-website
     paths:
       - '.github/workflows/deploy-website.yml'
       - 'docs/**'
