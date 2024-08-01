@@ -26,3 +26,6 @@ for file in $(find ./_docs -type f -name "*.md" -maxdepth 2); do
         fi
     fi
 done
+
+# Replace https://armadaproject.io with . in _includes/CONTRIBUTING.md using perl
+perl -pi -e 's/https:\/\/armadaproject.io/./g' _includes/CONTRIBUTING.md
