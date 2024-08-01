@@ -12,7 +12,7 @@ title: armada_client package
 Armada Python GRPC Client
 
 For the api definitions:
-[Armada API docs](./developer/api.md)
+[https://armadaproject.io/api](https://armadaproject.io/api)
 
 
 ### _class_ armada_client.client.ArmadaClient(channel, event_timeout=datetime.timedelta(seconds=900))
