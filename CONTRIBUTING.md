@@ -18,6 +18,7 @@ To work with [Armada website](https://armadaproject.io/), please checkout this b
 
 If you want to brainstorm a potential new feature, hop on over to the Discussions page, listed [below](#discussions).
 
+
 ## Contributing Guide
 
 ### Setup
