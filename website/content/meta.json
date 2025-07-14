@@ -1,11 +1,3 @@
 {
-  "pages": [
-    "index",
-    "quickstart",
-    "installation",
-    "concepts",
-    "integrations",
-    "developer",
-    "user"
-  ]
+  "root": true
 }

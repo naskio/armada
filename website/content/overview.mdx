@@ -1,85 +1,202 @@
 ---
 title: Overview
-description: System overview of Armada, a multi-Kubernetes cluster batch job scheduler.
 ---
 
-At a high level, Armada is a multi-Kubernetes cluster batch job scheduler. Each Armada job represents a computational task to be carried out over a finite amount of time and consists of
+import { ArmadaIcon, ArmadaText } from '@/components/logo';
 
-- a Kubernetes pod,
-- zero or more auxiliary Kubernetes objects (e.g., services and ingresses), and
-- metadata specific to Armada (e.g., the name of the queue to which the job belongs).
+<div className='ms-3 flex flex-col items-center justify-center gap-3 md:my-3'>
+  <ArmadaIcon className='w-30 md:w-35' />
+  <ArmadaText className='w-30 text-[#00aae1] md:w-35' />
+  <div className='flex gap-3'>
+    <a href='https://circleci.com/gh/armadaproject/armada' target='_blank'>
+      <img
+        src='https://circleci.com/gh/helm/helm.svg?style=shield'
+        alt='CircleCI'
+      />
+    </a>
+    <a
+      href='https://goreportcard.com/report/github.com/armadaproject/armada'
+      target='_blank'
+    >
+      <img
+        src='https://goreportcard.com/badge/github.com/armadaproject/armada'
+        alt='Go Report Card'
+      />
+    </a>
+    <a
+      href='https://artifacthub.io/packages/helm/gresearch/armada'
+      title='Go to Artifact Hub'
+      target='_blank'
+    >
+      <img
+        src='https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/armada'
+        alt='Artifact Hub'
+      />
+    </a>
+    <a
+      href='https://insights.lfx.linuxfoundation.org/foundation/cncf/overview?project=armada'
+      target='_blank'
+      title='Click to view project insights and health checks'
+    >
+      <img
+        src='https://img.shields.io/badge/LFX%20Insights-0094FF'
+        alt='LFX Insights Dashboard'
+      />
+    </a>
+  </div>
+</div>
 
-Jobs are submitted to Armada, and Armada is responsible for determining when and where each job should be run.
+## What is Armada?
 
-An Armada deployments consists of:
+Armada is a multi-Kubernetes cluster batch job meta-scheduler designed to handle massive-scale workloads. Built on top of Kubernetes, Armada enables organizations to distribute millions of batch jobs per day across tens of thousands of nodes spanning multiple clusters, making it an ideal solution for high-throughput computational workloads.
 
-- One or more Kubernetes clusters containing nodes to be used for running jobs. Such clusters are referred to as worker clusters.
-- The Armada control-plane components are responsible for job submission and scheduling. Jobs are submitted to the control plane and are automatically transferred to worker clusters once scheduled.
-- The Armada executors are responsible for communication between the Armada control plane and the [Kubernetes control plane](https://kubernetes.io/docs/concepts/overview/kubernetes-api/). There is one executor per worker cluster.
+Armada serves as middleware that transforms Kubernetes into a powerful batch processing platform while maintaining compatibility with service workloads. It addresses the fundamental limitations of running batch workloads at scale on Kubernetes by providing:
 
-The Armada control plane components may run anywhere from which they can be reached by the executors, e.g., in the same cluster as an executor, on a different Kubernetes cluster, or on a node not managed by Kubernetes. Each executor normally runs within the worker cluster it is responsible for.
+- **Multi-cluster orchestration**: Schedule jobs across many Kubernetes clusters seamlessly
+- **High-throughput queueing**: Handle millions of queued jobs using specialized storage layers
+- **Advanced batch scheduling**: Fair queuing, gang scheduling, preemption, and resource limits
+- **Enterprise-grade reliability**: Secure, highly available components designed for production use
 
-We show an overview of an Armada deployment with three worker clusters below. Clients here refer to systems submitting jobs to Armada.
+As a [CNCF Sandbox project](https://www.cncf.io/), Armada is actively maintained and used in production environments, including at [G-Research](https://www.gresearch.com/) where it processes millions of jobs daily.
 
-```mermaid
-graph LR
-    A[Clients] --> B[Armada control plane]
-    B --> C[Worker clusters]
+## Why Use Armada?
 
-    subgraph C [Worker clusters]
-        D[Executor]
-        E[Executor]
-        F[Executor]
+### Kubernetes Limitations for Batch Workloads
 
-        D --> G[kube-api]
-        E --> H[kube-api]
-        F --> I[kube-api]
-    end
-```
+Traditional Kubernetes faces several challenges when running batch workloads at scale:
 
-The arrows in the above diagram show the path jobs take through the system. Specifically, each job passes through the following stages:
+1. **Single Cluster Scaling Limits**: Scaling a single Kubernetes cluster beyond a certain size is [challenging](https://openai.com/blog/scaling-kubernetes-to-7500-nodes/), typically maxing out around 5,000-15,000 nodes depending on configuration.
 
-1. The job is submitted to Armada, where it is stored in one of several queues, e.g., corresponding to different users. At this point, the job is stored on the Armada control plane and does not exist in any Kubernetes cluster. The job is in the _queued_ state.
-2. The Armada scheduler eventually determines that the job should be run and marks the job with the Kubernetes cluster and node it should be run on. The job is in the _leased_ state.
-3. The Kubernetes resources that make up the job are created in the cluster it was assigned to via kube-api calls. The pod contained in the job is bound to the node it was assigned to. The job is in the "pending" state.
-4. Container images are pulled, volumes and secrets mounted, and init containers run, after which the main containers of the pod start running. The job is in the _running_ state.
-5. The job terminates once all containers in the pod have stopped running. Depending on the exit codes of the containers, the job transitions to either the _succeeded_ or _failed_ state.
+2. **Storage Backend Constraints**: Achieving very high throughput using etcd, Kubernetes' in-cluster storage backend, is [challenging](https://etcd.io/docs/v3.5/op-guide/performance/) and can become a bottleneck for job queuing.
 
-All Kubernetes resources associated with the job are deleted once the job terminates. For more information on jobs, see the scheduler documentation.
+3. **Inadequate Batch Scheduling**: The default [kube-scheduler](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/) lacks essential batch scheduling features like fair queuing, gang scheduling, and intelligent preemption.
 
-## The Armada control plane
+### Armada's Solution
 
-The Armada control plane is the set of components responsible for job submission and scheduling. It consists of the following subsystems:
+Armada overcomes these limitations by:
 
-- Job submission and control. Exposes an API through which clients can submit, re-prioritize, and cancel jobs.
-- Job state querying. Allows clients to query the current state of a job.
-- Job state querying (streaming). Allows clients to subscribe to a stream of updates to a set of jobs.
-- Scheduler. Responsible for assigning jobs to clusters and nodes.
-- Lookout. Web UI showing the current state of jobs.
+- **Distributing across multiple clusters**: Manage thousands of nodes across many Kubernetes clusters
+- **Out-of-cluster scheduling**: Perform queueing and scheduling using specialized storage layers
+- **Purpose-built batch scheduler**: Include advanced scheduling features designed specifically for batch workloads
 
-The services that make up these subsystems communicate according to event-sourcing principles, i.e., message routing is handled by a log-based message broker shared by all services. In particular, Armada relies on Apache Pulsar for message routing. Each subsystem then operates in cycles consisting of:
+## Key Features and Benefits
 
-1. Receive messages from Pulsar.
-2. Do either or both of:
+### Core Scheduling Features
 
-- Update the internal state of the subsystem.
-- Publish messages to Pulsar.
+**Fair-Use Scheduling**
 
-Those published messages may then be received by other subsystems, causing them to publish other messages, and so on. Note that the log is the source of truth; each subsystem can recover its internal state by replaying messages from the log. We include a diagram showing this process below with two subsystems.
+- Maintains fair resource share over time across users and teams
+- Based on dominant resource fairness principles
+- Includes priority factors for different queues
+- Inspired by HTCondor priority systems
 
-```mermaid
-graph LR
-    subgraph P [Pulsar]
-        T[Multiple topics/topic partitions]
-    end
+**High Throughput Processing**
 
-    S1[Subsystem 1]
-    S2[Subsystem 2]
+- Handle millions of queued jobs simultaneously
+- Specialized storage layer optimized for batch workloads
+- Efficient job submission and status tracking
 
-    P --> S1
-    P --> S2
-S1 --> P
-S2 --> P
-```
+**Gang Scheduling**
 
-{/* See [a note on consistency](./consistency.md) for some more detail on how Armada ensures consistency between components. */}
+- Atomically schedule sets of related jobs
+- Ensures all jobs in a group start together or not at all
+- Critical for distributed computing frameworks like MPI
+
+**Intelligent Preemption**
+
+- Run urgent jobs in a timely fashion
+- Balance resource allocation between users
+- Configurable preemption policies
+
+### Enterprise-Grade Operations
+
+**Massive Scale Support**
+
+- Utilize multiple Kubernetes clusters simultaneously
+- Scale beyond single cluster limitations
+- Add and remove clusters without service disruption
+
+**Advanced Resource Management**
+
+- Resource and job scheduling rate limits
+- Detailed resource allocation controls
+- Node affinity and anti-affinity rules
+
+**Comprehensive Monitoring**
+
+- Detailed analytics via [Prometheus](https://prometheus.io/) integration
+- Resource allocation and system behavior insights
+- Automatic failure detection and node removal
+
+**Production-Ready Features**
+
+- Secure authentication and authorization
+- High availability architecture
+- Automatic node failure handling
+- Cluster health monitoring
+
+## Use Cases and Success Stories
+
+### High-Performance Computing (HPC)
+
+- **Machine Learning Training**: Distribute large-scale ML training jobs across multiple clusters
+- **Scientific Computing**: Run complex simulations and data analysis workloads
+- **Financial Modeling**: Execute risk calculations and quantitative analysis at scale
+
+### Data Processing Pipelines
+
+- **ETL Workloads**: Process large datasets with parallel batch jobs
+- **Data Analytics**: Run distributed analytics jobs across multiple clusters
+- **Backup and Archival**: Coordinate large-scale data movement operations
+
+### CI/CD and Development
+
+- **Build Systems**: Distribute compilation and testing jobs
+- **Integration Testing**: Run comprehensive test suites across multiple environments
+- **Deployment Automation**: Coordinate complex deployment workflows
+
+### Production Deployment at G-Research
+
+G-Research, a leading quantitative research company, uses Armada in production to:
+
+- Process millions of jobs per day
+- Manage tens of thousands of nodes
+- Support diverse computational workloads
+- Maintain high availability and performance
+
+## Comparison with Other Schedulers
+
+### vs. Native Kubernetes Scheduler
+
+- **Scale**: Armada spans multiple clusters vs. single cluster limitation
+- **Throughput**: Millions of jobs vs. thousands with native scheduler
+- **Batch Features**: Purpose-built for batch vs. service-oriented design
+- **Fair Scheduling**: Advanced fair-use policies vs. basic priority classes
+
+### vs. Traditional HPC Schedulers (SLURM, PBS)
+
+- **Container Native**: Built for containerized workloads vs. traditional HPC
+- **Kubernetes Integration**: Leverages Kubernetes ecosystem vs. isolated systems
+- **Cloud Ready**: Designed for cloud and hybrid environments
+- **Modern APIs**: REST/gRPC APIs vs. command-line interfaces
+
+## Getting Started
+
+> [!NOTE]
+> TODO: this section will be updated with links to the new documentation structure once it is finalized.
+
+Ready to explore Armada? Here are your next steps:
+
+1. **Quick Start**: Try the local installation guide to get Armada running with Kind
+2. **Core Concepts**: Learn about jobs, queues, and scheduling
+3. **Production Setup**: Review the operations guide for production deployment
+
+## Community and Support
+
+> [!NOTE]
+> TODO: this section will be updated with links to the new documentation structure once it is finalized.
+
+- **Documentation**: Comprehensive guides and API references
+- **Community Slack**: Join discussions on [CNCF Slack](https://cloud-native.slack.com/?redir=%2Farchives%2FC03T9CBCEMC)
+- **GitHub**: Report issues and contribute at [github.com/armadaproject/armada](https://github.com/armadaproject/armada)
+- **Videos**: Watch [overview presentations](https://www.youtube.com/watch?v=FT8pXYciD9A) and [technical deep-dives](https://www.youtube.com/watch?v=B3WPxw3OUl4)
