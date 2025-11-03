@@ -6,6 +6,7 @@ import {
   type LinkItemType,
 } from 'fumadocs-ui/layouts/docs';
 import { baseOptions } from '@/app/layout.config';
+import { Footer } from '@/components/footer';
 import { source } from '@/loaders/source';
 import env from '@/utils/env';
 import serverEnv from '@/utils/server-env';
@@ -50,5 +51,10 @@ const docsOptions: DocsLayoutProps = {
 };
 
 export default function Layout({ children }: { children: ReactNode }) {
-  return <DocsLayout {...docsOptions}>{children}</DocsLayout>;
+  return (
+    <>
+      <DocsLayout {...docsOptions}>{children}</DocsLayout>
+      <Footer />
+    </>
+  );
 }
