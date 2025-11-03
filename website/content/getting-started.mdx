@@ -1,26 +1,29 @@
 ---
 title: 'Getting Started'
+description: 'Follow this quickstart guide to get Armada up and running locally'
 ---
 
-# Getting Started
+## Quickstart
 
-**Start here if you're new to Armada. Learn how to install it and run your first job.**
+This guide helps you set up and run Armada on your local machine for testing and development. We use [Kind](https://kind.sigs.k8s.io/) (Kubernetes in Docker) to simplify local setup.
 
-## 2.1 Quickstart
+The [Armada Operator](https://github.com/armadaproject/armada-operator) provides the easiest way to get started, as it automates all the setup steps for you.
 
 ### Prerequisites
 
-You need these tools installed:
+Before you begin, make sure you have these tools installed on your local machine:
 
-- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [Helm](https://helm.sh/docs/intro/install/)
-- [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
-- [Make](https://www.gnu.org/software/make/)
-- [Go v1.21+](https://golang.org/doc/install) - required for the Quickstart `make kind-all` target
+- **[kubectl](https://kubernetes.io/docs/tasks/tools/)** - Command-line tool for Kubernetes
+- **[Helm](https://helm.sh/docs/intro/install/)** - Package manager for Kubernetes
+- **[Kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)** - For creating a local Kubernetes cluster
+- **[Make](https://www.gnu.org/software/make/)** - Build automation tool
+- **[Go (v1.21 or later)](https://go.dev/doc/install)** - Required for the quickstart automation script
 
-### Setup Armada using the Armada Operator
+### Quick Setup with Armada Operator
 
-Clone the Armada Operator repository and run the quickstart:
+The easiest way to get started is using the Armada Operator, which handles all the setup automatically.
+
+Clone the Armada Operator repository and run the quickstart command:
 
 ```bash
 git clone https://github.com/armadaproject/armada-operator.git
@@ -29,53 +32,74 @@ make kind-all
 ```
 
 This single command will:
+- Create a local Kind cluster
+- Install all required dependencies
+- Set up Armada with all components
+- Install the `armadactl` command-line tool
 
-- Create a Kind cluster
-- Install all dependencies
-- Setup Armada
-- Install armadactl
+Wait for the command to complete—this may take a few minutes as it sets up everything.
 
-Wait for the command to complete.
-
-### Submit Your First Job
-
-#### 1. Create a queue
+Once the setup completes, verify that Armada is running:
 
 ```bash
-armadactl create queue example-queue
+kubectl get pods -n armada
 ```
 
-#### 2. Submit a job
+You should see Armada services running. If everything looks good, you're ready to submit jobs!
+
+## Submit Your First Job
+
+Let's run a simple job to verify everything works.
+
+### Create a Queue
+
+First, create a queue called `example` where your job will be submitted:
+
+```bash
+armadactl create queue example
+```
+
+> [!NOTE]
+> Queues help organize and prioritize your jobs in Armada.
+
+### Submit a Job
+
+Submit the example job that comes with the quickstart:
 
 ```bash
 armadactl submit dev/quickstart/example-job.yaml
 ```
 
-#### 3. Watch your job
+This submits a simple job to the `example` queue we just created.
+
+### Watch Your Job
+
+Monitor your job's progress:
 
 ```bash
-armadactl watch example-queue hello-armada
+armadactl watch example job-set-1
 ```
 
-### View Job Status
+This will show you real-time updates as your job runs. You should see the job progress from queued → running → completed.
 
-Open the web UI:
+### Lookout UI
 
-```bash
-# Open http://localhost:30000 in your browser
-```
+You can also monitor jobs through Armada's web interface, called [Lookout UI](http://localhost:30000).
 
-## 2.2 Run More Jobs
+Open [http://localhost:30000](http://localhost:30000) in your browser to see a visual dashboard of your queues, jobs, and their status.
 
-### Python Job Example
+## Going Further
 
-Create a simple Python job file `python-job.yaml`:
+### Submit a Python Job
+
+Try submitting a Python job. Create a file `python-job.yaml`:
 
 ```yaml
-queue: example-queue
+queue: example
 jobSetId: python-example
 jobs:
-  - podSpec:
+  - namespace: default
+    podSpec:
       restartPolicy: Never
       containers:
         - name: python
@@ -88,33 +112,49 @@ jobs:
             ]
           resources:
             requests:
-              memory: 100Mi
-              cpu: 100m
+              memory: 64Mi
+              cpu: 1
+            limits:
+              memory: 64Mi
+              cpu: 1
 ```
 
-Submit it:
+Submit and watch it:
 
 ```bash
 armadactl submit python-job.yaml
-armadactl watch example-queue python-example
+armadactl watch example python-example
 ```
 
 ### Useful Commands
 
+Here are some common commands you'll use:
+
 ```bash
-# List queues
+# List all queues
 armadactl get queues
 
 # Cancel a job set
 armadactl cancel job-set <queue-name> <job-set-id>
 
-# Clean up when done
-kind delete cluster --name armada
+# Learn more about armadactl commands
+armadactl help
 ```
 
-## Next Steps
+Once you're done testing, you can tear down the Kind cluster and clean up all resources with:
 
-### Learn More
+```bash
+make kind-delete-cluster
+```
 
-- Check out the [Armada documentation](https://armadaproject.io/)
-- Visit the [GitHub repository](https://github.com/armadaproject/armada)
+## Getting Help
+
+If you are running into issues or have questions, we are here to help!
+
+<Cards>
+  <Card
+    href='/community'
+    title='Community'
+    description='Find out how you can get help and get involved with the Armada community.'
+  />
+</Cards>
