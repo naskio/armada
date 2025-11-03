@@ -1,7 +1,6 @@
 {
   "root": true,
   "pages": [
-    "toc",
     "index",
     "getting-started",
     "understanding-armada",
@@ -10,7 +9,6 @@
     "developer-guide",
     "contributing",
     "community-and-support",
-    "faq-and-troubleshooting",
     "..."
   ]
 }
