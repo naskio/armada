@@ -24,8 +24,6 @@ Jobs progress through the following states:
 4. **Running**: Containers are executing
 5. **Succeeded/Failed**: Job has completed (all containers stopped)
 
-For more details, see the [scheduling documentation](https://github.com/armadaproject/armada/blob/master/docs/scheduling_and_preempting_jobs.md).
-
 ## Queues
 
 A **queue** is a logical container for jobs and is the basis for fair resource allocation in Armada. Each job must belong to exactly one queue.
@@ -115,8 +113,6 @@ The scheduler uses two approaches:
 - **Deterministic slicing**: Allocate resources proportionally based on inverse priority
 - **Probabilistic scheduling**: Randomly select queues for remaining resources based on their fair share
 
-For detailed algorithm documentation, see the [priority algorithm documentation](https://github.com/armadaproject/armada/blob/master/docs/priority_algorithm.md).
-
 ## Gang Scheduling
 
 **Gang scheduling** ensures that a set of related jobs either all start together or none start at all. This is critical for distributed computing frameworks like MPI where all processes must start simultaneously.
@@ -139,11 +135,3 @@ Preemption helps ensure:
 - Urgent jobs run in a timely fashion
 - Fair resource distribution over time
 - High cluster utilization
-
-## Learn More
-
-For more detailed information, see:
-
-- [Scheduling and Preempting Jobs](https://github.com/armadaproject/armada/blob/master/docs/scheduling_and_preempting_jobs.md)
-- [Priority Algorithm](https://github.com/armadaproject/armada/blob/master/docs/priority_algorithm.md)
-- [Creating and Submitting Jobs](https://github.com/armadaproject/armada/blob/master/docs/creating_and_submitting_jobs.md)

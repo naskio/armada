@@ -16,15 +16,30 @@ The control plane components can run anywhere accessible by executors (same clus
 
 ### Deployment Architecture
 
-```
-                    ┌──────────────────────┐        ┌──────────┐ ┌──────────┐ ┌──────────┐
-┌──────────┐        │                      │        │┼────────┼│ │┼────────┼│ │┼────────┼│
-│ Clients  │ ─────► │ Armada control plane │ ─────► ││Executor││ ││Executor││ ││Executor││
-│          │        │                      │        │┼────────┼│ │┼────────┼│ │┼────────┼│
-└──────────┘        │                      │        │┼───▼────┼│ │┼───▼────┼│ │┼───▼────┼│
-                    │                      │        ││kube-api││ ││kube-api││ ││kube-api││
-                    │                      │        │┼────────┼│ │┼────────┼│ │┼────────┼│
-                    └──────────────────────┘        └──────────┘ └──────────┘ └──────────┘
+```mermaid
+graph LR
+    A[Clients] --> B[Armada control plane]
+    B --> C[Worker clusters]
+
+    subgraph C [Worker clusters]
+        subgraph cluster1 [ ]
+            direction TB
+            D[Executor]
+            D --> G[kube-api]
+        end
+
+        subgraph cluster2 [ ]
+            direction TB
+            E[Executor]
+            E --> H[kube-api]
+        end
+
+        subgraph cluster3 [ ]
+            direction TB
+            F[Executor]
+            F --> I[kube-api]
+        end
+    end
 ```
 
 ## Event-Sourcing Architecture
@@ -48,8 +63,6 @@ Armada uses **Apache Pulsar** as the log implementation. This approach provides:
 - **Resilience to load bursts**: The log buffers state transitions, isolating downstream components
 - **Simplicity and extensibility**: New views can be added by subscribing to the log
 - **Consistency guarantees**: Databases eventually converge to the same state
-
-For more details, see the [architecture documentation](https://github.com/armadaproject/armada/blob/master/docs/architecture.md).
 
 ## Control Plane Components
 
@@ -109,28 +122,6 @@ Here's how a job flows through the system:
 6. **Running**: Kubernetes starts containers
 7. **Completed**: Executor reports completion → Scheduler publishes completion event to log
 
-## Data Flow
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                    │
-│   ┌───────────────────────────────────────┐        ┌───────────────────────────┐   │
-│   │ Apache Pulsar (Log)                   │        │ Submit API                │   │
-│┌─►│ ┌───────────────────────────────────┐ │ ─────► │                           │ ──┘
-││  │ │ Multiple topics/topic partitions. │ │        └───────────────────────────┘
-││  │ │                                   │ │
-││  │ │                                   │ │        ┌───────────────────────────┐
-│┌─►│ └───────────────────────────────────┘ │ ─────► │ Scheduler                 │ ──┐
-││  │                                       │        │                           │   │
-││  └───────────────────────────────────────┘        └───────────────────────────┘   │
-││                                                                                    │
-││                                      ┌───────────────────────────┐                │
-│└─────────────────────────────────────│ Lookout (UI)              │                │
-│                                       │                           │                │
-│                                       └───────────────────────────┘                │
-└────────────────────────────────────────────────────────────────────────────────────┘
-```
-
 ## Consistency and Reliability
 
 Armada ensures consistency across components using **ordered idempotent updates**:
@@ -155,11 +146,3 @@ Armada uses multiple databases for different purposes:
 - **Executor databases**: Interface between scheduler and executors
 
 All databases are materialized views derived from the log, ensuring they can be reconstructed if needed.
-
-## Learn More
-
-For detailed architecture information, see:
-
-- [System Overview](https://github.com/armadaproject/armada/blob/master/docs/system_overview.md)
-- [Architecture Deep Dive](https://github.com/armadaproject/armada/blob/master/docs/architecture.md)
-- [Maintaining Consistency](https://github.com/armadaproject/armada/blob/master/docs/maintaining_consistency_across_views.md)
