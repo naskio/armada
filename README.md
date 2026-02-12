@@ -228,6 +228,10 @@ We expect readers of the documentation to have a basic understanding of Docker a
 - [Docker overiew](https://docs.docker.com/get-started/overview/)
 - [Kubernetes overview](https://kubernetes.io/docs/concepts/overview/)
 
+## Adopters
+
+Organizations using Armada in production are listed on our website. See the [Adopters](https://armadaproject.io/community#adopters) section for success stories or to add your organization.
+
 ## Contributions
 
 Thank you for considering contributing to Armada!
