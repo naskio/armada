@@ -18,6 +18,7 @@ To work with [Armada website](https://armadaproject.io/), please checkout this b
 
 If you want to brainstorm a potential new feature, hop on over to the Discussions page, listed [below](#discussions).
 
+
 ## Contributing Guide
 
 ### Setup
@@ -114,3 +115,7 @@ Armada developers appreciate and encourage coordinated disclosure of security vu
 Armada is licensed with the Apache 2.0 license.  You can find it published here:
 
 * [https://github.com/armadaproject/armada/blob/master/LICENSE](https://github.com/armadaproject/armada/blob/master/LICENSE)
+
+# Testing invalid link detection in newly added changes
+
+[404 error](https://github.com/ShivangShandilya/armada/assets/101946115/2324787b-978f-4da3-b8b4-e1ee41d8aec0)
